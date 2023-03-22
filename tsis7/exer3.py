@@ -18,19 +18,19 @@ while running:
             running = False
 
     # fill the screen with a color to wipe away anything from last frame
-    screen.fill("purple")
+    screen.fill("white")
 
-    pygame.draw.circle(screen, "red", player_pos, 40)
+    pygame.draw.circle(screen, "red", player_pos, 50)
 
     keys = pygame.key.get_pressed()
-    if keys[pygame.K_w]:
-        player_pos.y -= 300 * dt
-    if keys[pygame.K_s]:
-        player_pos.y += 300 * dt
-    if keys[pygame.K_a]:
-        player_pos.x -= 300 * dt
-    if keys[pygame.K_d]:
-        player_pos.x += 300 * dt
+    if keys[pygame.K_w] and player_pos.y > 20:
+        player_pos.y -= 20
+    if keys[pygame.K_s] and player_pos.y + 20 < screen.get_height():
+        player_pos.y += 20
+    if keys[pygame.K_a] and player_pos.x > 20:
+        player_pos.x -= 20
+    if keys[pygame.K_d] and player_pos.x + 20 < screen.get_width():
+        player_pos.x += 20
 
     # flip() the display to put your work on screen
     pygame.display.flip()
