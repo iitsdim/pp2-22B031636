@@ -21,7 +21,9 @@ ORANGE = (255, 213, 128)
 # Other Variables for use in the program
 SCREEN_WIDTH = 400
 SCREEN_HEIGHT = 600
-SPEED = 5
+ENEMY_SPEED = 5
+COIN_SPEED = 5
+SPEED_N = 5
 
 # Create a white screen
 DISPLAYSURF = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
@@ -37,7 +39,7 @@ class Enemy(pygame.sprite.Sprite):
         self.rect.center = (random.randint(40, SCREEN_WIDTH - 40), 0)
 
     def move(self):
-        self.rect.move_ip(0, SPEED)
+        self.rect.move_ip(0, ENEMY_SPEED)
         if self.rect.top > 600:
             self.rect.top = 0
             self.rect.center = (random.randint(30, 370), 0)
@@ -48,13 +50,15 @@ class Coin(pygame.sprite.Sprite):
         super().__init__()
         self.image = pygame.image.load("coin.png")
         self.rect = self.image.get_rect()
+        self.weight = random.randint(1, 2)
         self.rect.center = (random.randint(40, SCREEN_WIDTH - 40), 0)
 
     def move(self):
-        self.rect.move_ip(0, SPEED)
+        self.rect.move_ip(0, COIN_SPEED)
         if self.rect.top > 600:
             self.rect.top = 0
             self.rect.center = (random.randint(30, 370), 0)
+            self.weight = random.randint(1, 2)
 
 
 class Player(pygame.sprite.Sprite):
@@ -104,7 +108,7 @@ for i in range(2):
 
 # Adding a new User event
 INC_SPEED = pygame.USEREVENT + 1
-pygame.time.set_timer(INC_SPEED, 1000)
+pygame.time.set_timer(INC_SPEED, 2000)
 score = 0
 # Game Loop
 while True:
@@ -112,7 +116,8 @@ while True:
     # Cycles through all events occuring
     for event in pygame.event.get():
         if event.type == INC_SPEED:
-            SPEED += 2
+            COIN_SPEED += 2
+            ENEMY_SPEED += 2
 
         if event.type == QUIT:
             pygame.quit()
@@ -127,11 +132,18 @@ while True:
         entity.move()
 
     # collecting coins
+    # old score_cons
+    before_CONST = score // SPEED_N
     collected_coins = pygame.sprite.spritecollide(P1, coins, False)
     for coin in collected_coins:
-        score += 1
+        score += coin.weight
         coin.rect.top = 0
         coin.rect.center = (random.randint(30, SCREEN_WIDTH - 30), 0)
+        coin.weight = random.randint(1, 2)
+
+    if score // SPEED_N > before_CONST:
+        ENEMY_SPEED += 2 * (score // SPEED_N - before_CONST)
+        # add speed as u increase score
 
     # To be run if collision occurs between Player and Enemy
     if pygame.sprite.spritecollideany(P1, enemies):
