@@ -32,6 +32,7 @@ class Point:
 class Food:
     def __init__(self, x, y):
         self.location = Point(x, y)
+        self.weight = random.randint(1, 3)
 
     @property
     def x(self):
@@ -150,6 +151,16 @@ def main():
     food = Food(5, 5)
     dx, dy = 0, 0
 
+    def gen_food():
+        while True:
+            food_x = random.randint(0, WIDTH // BLOCK_SIZE - 1)
+            food_y = random.randint(0, HEIGHT // BLOCK_SIZE - 1)
+            if walls.count(Wall(food_x, food_y)) == 0:
+                break
+        food.location.x = food_x
+        food.location.y = food_y
+        food.weight = random.randint(1, 3)
+
     walls = []
     for _ in range(NUMBER_OF_WALLS):
         while True:
@@ -164,13 +175,19 @@ def main():
     counter = 0
     level = 1
     font = pygame.font.Font('freesansbold.ttf', 22)
-    hit_wall = False
+
+    # disappear food
+    DISAPPEAR_FOOD = pygame.USEREVENT + 1
+    pygame.time.set_timer(DISAPPEAR_FOOD, 10000)
+
     while running:
         SCREEN.fill(BLACK)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
+            if event.type == DISAPPEAR_FOOD:
+                gen_food()
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_UP:
                     dx, dy = 0, -1
@@ -194,24 +211,17 @@ def main():
                 time.sleep(2)
                 pygame.quit()
                 sys.exit()
-        if hit_wall:
-            continue
-        if snake.check_collision(food):
-            snake.points.append(Point(food.x, food.y))
-            counter += 1
-            if counter // LEVEL_CONSTANT == level:
-                level += 1
-                # increase speed of snake by 50%
-                speed *= 1.5
-                counter = LEVEL_CONSTANT
 
-            while True:
-                food_x = random.randint(0, WIDTH // BLOCK_SIZE - 1)
-                food_y = random.randint(0, HEIGHT // BLOCK_SIZE - 1)
-                if walls.count(Wall(food_x, food_y)) == 0:
-                    break
-            food.location.x = food_x
-            food.location.y = food_y
+        if snake.check_collision(food):
+            for _ in range(food.weight):
+                snake.points.append(Point(food.x, food.y))
+                counter += 1
+                if counter // LEVEL_CONSTANT > level - 1:
+                    level += 1
+                    # increase speed of snake by 50%
+                    speed *= 1.5
+
+            gen_food()
 
         # added level
         text = font.render(f'Level: {level}, Score: {counter}', True, GREEN, ORANGE)
