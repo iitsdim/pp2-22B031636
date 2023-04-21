@@ -5,9 +5,20 @@ from config import config
 
 
 def phone_list():
+    off = input("please input offset: ")
+    lim = input("please input limit: ")
+
+
     sql = """
-        SELECT * FROM phone_book;
+        SELECT * FROM phone_book
     """
+
+    if off:
+        sql += " OFFSET " + off
+    if lim:
+        sql += " LIMIT " + lim
+
+    sql += ";"
     conn = None
     res = None
     try:
@@ -33,7 +44,7 @@ def phone_list():
     return res
 
 
-print(phone_list())
+# print(phone_list())
 
 
 def get_number_by_username(username):
@@ -64,7 +75,7 @@ def get_number_by_username(username):
     return res
 
 
-print(get_number_by_username("m"))
+# print(get_number_by_username("m"))
 
 
 def get_number_by_phone(phone):
@@ -94,4 +105,4 @@ def get_number_by_phone(phone):
     return res
 
 
-print(get_number_by_phone("234424"))
+# print(get_number_by_phone("234424"))
